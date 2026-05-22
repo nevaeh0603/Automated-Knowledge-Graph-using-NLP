@@ -30,7 +30,8 @@ if uploaded_file is not None:        #Run next code only after user uploads a fi
         if len(text.strip()) == 0:
             st.error("No text could be extracted from this file.")
         else:
-            st.write(text[:500])  # show first 500 chars
+            st.text_area("Document Text", text[:1000], height=300)
+            st.success("File uploaded successfully!")
 
             # Step 2: Extract entities
             st.subheader("Extracted Entities")
@@ -40,4 +41,5 @@ if uploaded_file is not None:        #Run next code only after user uploads a fi
                 st.warning("No entities found.")
             else:
                 for ent in entities:
-                    st.write(ent)
+                    st.write(f"Entity: {ent[0]} | Type: {ent[1]}")
+    
