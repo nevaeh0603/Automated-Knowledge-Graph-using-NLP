@@ -8,8 +8,8 @@ st.write("Upload a document and extract entities automatically.")
 
 # File Upload
 uploaded_file = st.file_uploader(
-    "Upload PDF or TXT file",
-    type=["pdf", "txt"]
+    "Upload PDF or TXT file or DOCX file",
+    type=["pdf", "txt", "docx"]
 )
 
 # Process Button

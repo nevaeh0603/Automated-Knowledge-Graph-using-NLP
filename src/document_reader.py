@@ -1,6 +1,7 @@
 import pdfplumber #best for text extraction
 import PyPDF2 #backup if PDF fails
-import os
+from docx import Document   #docx
+import os  
 
 ''' 3 functions -> 1. Read PDF  2. Read TXT  3. Detect file type automatically'''
 
@@ -37,6 +38,16 @@ def read_text(filepath):
     except Exception as e:
         print("TXT read failed: ",e)
         return " "
+
+def read_docx(filepath):
+    text=" "
+    try:
+        doc=Document(filepath)
+        for para in doc.paragraphs:
+            text+=para.text+"\n"
+    except Exception as e:
+        print("Docx read failed: ",e)
+    return text
     
 #Main Function  
 def extract_text_document(filepath):
@@ -57,6 +68,9 @@ def extract_text_document(filepath):
     
     elif file_extension==".txt":
         return read_text(filepath)
+    
+    elif file_extension==".docx":
+        return read_docx(filepath)
     
     else:
         print("Unsupported file format!")
