@@ -1,6 +1,6 @@
 import pdfplumber #best for text extraction
 import PyPDF2 #backup if PDF fails
-from docx import Document   #docx
+from docx import Document   
 import os  
 
 ''' 3 functions -> 1. Read PDF  2. Read TXT  3. Detect file type automatically'''
