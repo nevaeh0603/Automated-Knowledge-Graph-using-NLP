@@ -1,9 +1,9 @@
-import pdfplumber #best for text extraction
+import pdfplumber #best for text extraction from PDF
 import PyPDF2 #backup if PDF fails
-from docx import Document   
+from docx import Document   #For text extraction from docx 
 import os  
 
-''' 3 functions -> 1. Read PDF  2. Read TXT  3. Detect file type automatically'''
+''' 4 functions -> 1. Read PDF  2. Read TXT  3. Read Docx  4. Detect file type automatically'''
 
 #Read PDF using pdfplumber
 def read_pdf_pdfplumber(filepath):
@@ -51,7 +51,7 @@ def read_docx(filepath):
     
 #Main Function  
 def extract_text_document(filepath):
-    file_extension=os.path.splitext(filepath)[1] #extension-> .pdf, .py, .txt| splits the path root and file extension and takes out the extension
+    file_extension=os.path.splitext(filepath)[1] #extension-> .pdf, .py, .txt, .docx| splits the path root and file extension and takes out the extension
     file_extension=file_extension.lower().strip()
 
     print("Detected file extension: ", file_extension)
