@@ -1,5 +1,5 @@
 from document_reader import extract_text_document
-filepath=r"C:\Users\Lenovo\OneDrive\Desktop\Knowledge Graph ntcc\KnowledgeGraphBuilder\data\sampledocs\Nevaeh Singh NTCC 4144.pdf"
+filepath=r"C:\Users\Lenovo\OneDrive\Desktop\Knowledge Graph ntcc\KnowledgeGraphBuilder\data\sampledocs\Sample document KG.pdf"
 text= extract_text_document(filepath)
 
 print("\nExtracted Text: \n")

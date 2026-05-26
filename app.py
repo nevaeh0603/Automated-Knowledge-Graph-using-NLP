@@ -28,7 +28,7 @@ if uploaded_file is not None:        #Run next code only after user uploads a fi
         st.subheader("Extracted Text Preview")
         text = extract_text_document(temp_path) 
 
-        if len(text.strip()) == 0:
+        if len(text.strip()) == 0: 
             st.error("No text could be extracted from this file.")
         else:
             st.text_area("Document Text", text[:1000], height=300)

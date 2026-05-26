@@ -6,3 +6,4 @@ PyPDF2
 python-docx
 pandas
 neo4j
+python-dotenv
