@@ -1,14 +1,15 @@
+import pandas as pd
 import streamlit as st
 import tempfile
 from src.document_reader import extract_text_document
 from src.entityextractor import extract_entities
 
 st.title("Automated Knowledge Graph Builder")
-st.write("Upload a document and extract entities automatically.")
+st.write("Upload a document from entity extraction")
 
 # File Upload
 uploaded_file = st.file_uploader(
-    "Upload PDF or TXT file or DOCX file",
+    "Upload PDF, TXT file or DOCX file",
     type=["pdf", "txt", "docx"]
 )
 
@@ -27,7 +28,7 @@ if uploaded_file is not None:        #Run next code only after user uploads a fi
         st.subheader("Extracted Text Preview")
         text = extract_text_document(temp_path) 
 
-        if len(text.strip()) == 0:
+        if len(text.strip()) == 0: 
             st.error("No text could be extracted from this file.")
         else:
             st.text_area("Document Text", text[:1000], height=300)
@@ -40,6 +41,5 @@ if uploaded_file is not None:        #Run next code only after user uploads a fi
             if len(entities) == 0:
                 st.warning("No entities found.")
             else:
-                for ent in entities:
-                    st.write(f"Entity: {ent[0]} | Type: {ent[1]}")
-    
+                df = pd.DataFrame(entities, columns=["Entity", "Type"])    #In a tabluar format
+                st.table(df)

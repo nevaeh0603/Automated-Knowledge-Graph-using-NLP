@@ -1,0 +1,9 @@
+# pip install -r requirements.txt
+spacy
+streamlit
+pdfplumber
+PyPDF2
+python-docx
+pandas
+neo4j
+python-dotenv
