@@ -9,7 +9,7 @@ import os
 def read_pdf_pdfplumber(filepath):
     text=" "
     try:
-        with pdfplumber.open(filepath) as pdf: #with automatically closes the opened file
+        with pdfplumber.open(filepath) as pdf: #"with" automatically closes the opened file
             for page in pdf.pages:
                 page_text= page.extract_text()
                 if page_text:
@@ -33,12 +33,13 @@ def read_pdf_PyPDF2(filepath):
 #Read txt
 def read_text(filepath):
     try:
-        with open(filepath, "r", encoding="utf-8") as file:
+        with open(filepath, "r", encoding="utf-8") as file: # utf: translate universal to binary
             return file.read()
     except Exception as e:
         print("TXT read failed: ",e)
         return " "
-
+    
+#DOCX Reader
 def read_docx(filepath):
     text=" "
     try:

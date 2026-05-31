@@ -2,10 +2,12 @@ import pandas as pd
 import streamlit as st
 import tempfile
 from src.document_reader import extract_text_document
-from src.entityextractor import extract_entities
+from src.entityextractor import extract_entities, remove_duplicates
 
 st.title("Automated Knowledge Graph Builder")
 st.write("Upload a document from entity extraction")
+st.sidebar.title("Project Info")
+st.sidebar.write("Automated Knowledge Graph Builder using NLP")
 
 # File Upload
 uploaded_file = st.file_uploader(
@@ -37,9 +39,19 @@ if uploaded_file is not None:        #Run next code only after user uploads a fi
             # Step 2: Extract entities
             st.subheader("Extracted Entities")
             entities = extract_entities(text)
+            entities = remove_duplicates(entities)
 
             if len(entities) == 0:
                 st.warning("No entities found.")
             else:
                 df = pd.DataFrame(entities, columns=["Entity", "Type"])    #In a tabluar format
                 st.table(df)
+st.write(f"Total Entities Found: {len(entities)}")
+st.metric("Entities Found", len(entities))
+df = pd.DataFrame(
+    entities,
+    columns=["Entity", "Type"]
+)
+
+st.dataframe(df)
+
