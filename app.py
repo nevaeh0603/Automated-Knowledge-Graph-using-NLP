@@ -45,30 +45,35 @@ if uploaded_file is not None:
                 text[:1000],
                 height=300
             )
+
             st.success("File uploaded successfully!")
 
             # Step 2: Extract entities
-
             entities = extract_entities(text)
             entities = remove_duplicates(entities)
 
             if len(entities) == 0:
                 st.warning("No entities found.")
             else:
+                # Create DataFrame
                 df = pd.DataFrame(
                     entities,
                     columns=["Entity", "Type"]
                 )
 
-                
+                # Add serial number column starting from 1
+                df.insert(0, "S.No", range(1, len(df) + 1))
 
-
-                # Interactive dataframe
+                # Display table
                 st.subheader("Extracted Entities")
                 st.dataframe(
                     df,
-                    use_container_width=True
+                    use_container_width=True,
+                    hide_index=True
                 )
+
                 # Metrics
-                
-                st.metric("Entities Found", len(entities))
+                st.metric(
+                    "Entities Found",
+                    len(entities)
+                )
