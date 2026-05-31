@@ -63,9 +63,6 @@ if uploaded_file is not None:
 
                 
 
-                # Metrics
-                st.write(f"Total Entities Found: {len(entities)}")
-                st.metric("Entities Found", len(entities))
 
                 # Interactive dataframe
                 st.subheader("Extracted Entities")
@@ -73,3 +70,6 @@ if uploaded_file is not None:
                     df,
                     use_container_width=True
                 )
+                # Metrics
+                st.write(f"Total Entities Found: {len(entities)}")
+                st.metric("Entities Found", len(entities))
