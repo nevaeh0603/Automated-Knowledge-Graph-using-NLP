@@ -70,5 +70,5 @@ if uploaded_file is not None:
                     use_container_width=True
                 )
                 # Metrics
-                st.write(f"Total Entities Found: {len(entities)}")
-                st.metric("Entities Found", len(entities))
+                
+                st.metric("Total Entities Found", len(entities))
