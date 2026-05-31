@@ -61,14 +61,14 @@ if uploaded_file is not None:
                     columns=["Entity", "Type"]
                 )
 
-                st.table(df)
+                
 
                 # Metrics
                 st.write(f"Total Entities Found: {len(entities)}")
                 st.metric("Entities Found", len(entities))
 
                 # Interactive dataframe
-                st.subheader("Entity Data")
+                st.subheader("Extracted Entities")
                 st.dataframe(
                     df,
                     use_container_width=True

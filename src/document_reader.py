@@ -1,7 +1,7 @@
 import pdfplumber #best for text extraction from PDF
 import PyPDF2 #backup if PDF fails
 from docx import Document   
-import os  
+import os  #python -m streamlit run app.py
 
 ''' 4 functions -> 1. Read PDF  2. Read TXT  3. Read Docx  4. Detect file type automatically'''
 
