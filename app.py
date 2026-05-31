@@ -48,7 +48,6 @@ if uploaded_file is not None:
             st.success("File uploaded successfully!")
 
             # Step 2: Extract entities
-            st.subheader("Extracted Entities")
 
             entities = extract_entities(text)
             entities = remove_duplicates(entities)
