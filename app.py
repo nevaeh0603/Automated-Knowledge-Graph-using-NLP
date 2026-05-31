@@ -46,6 +46,7 @@ if uploaded_file is not None:        #Run next code only after user uploads a fi
             else:
                 df = pd.DataFrame(entities, columns=["Entity", "Type"])    #In a tabluar format
                 st.table(df)
+        
 st.write(f"Total Entities Found: {len(entities)}")
 st.metric("Entities Found", len(entities))
 df = pd.DataFrame(
@@ -54,4 +55,3 @@ df = pd.DataFrame(
 )
 
 st.dataframe(df)
-
