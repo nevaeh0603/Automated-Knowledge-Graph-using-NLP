@@ -3,9 +3,9 @@ import streamlit as st
 import tempfile
 from src.document_reader import extract_text_document
 from src.entityextractor import extract_entities, remove_duplicates
+from src.preprocessing import preprocess
 
 # Initialize entities
-entities = []
 
 st.title("Automated Knowledge Graph Builder")
 st.write("Upload a document for entity extraction")
@@ -33,6 +33,9 @@ if uploaded_file is not None:
             tmp_file.write(uploaded_file.read())
             temp_path = tmp_file.name
 
+            with st.spinner("Processing document..."):
+                text = extract_text_document(temp_path)
+
         # Step 1: Extract text
         st.subheader("Extracted Text Preview")
         text = extract_text_document(temp_path)
@@ -40,13 +43,12 @@ if uploaded_file is not None:
         if len(text.strip()) == 0:
             st.error("No text could be extracted from this file.")
         else:
-            st.text_area(
-                "Document Text",
-                text[:1000],
-                height=300
-            )
+            st.text_area("Document Text", text[:1000], height=300)
+            st.success("Document processed successfully!")
 
-            st.success("File uploaded successfully!")
+            processed_text = preprocess(text)
+            st.subheader("Processed Text")
+            st.text_area("Cleaned Text", processed_text[:1000], height=250)
 
             # Step 2: Extract entities
             entities = extract_entities(text)
@@ -56,24 +58,20 @@ if uploaded_file is not None:
                 st.warning("No entities found.")
             else:
                 # Create DataFrame
-                df = pd.DataFrame(
-                    entities,
-                    columns=["Entity", "Type"]
-                )
+                df = pd.DataFrame(entities, columns=["Entity", "Type"])
 
                 # Add serial number column starting from 1
                 df.insert(0, "S.No", [str(i) for i in range(1, len(df) + 1)])
 
                 # Display table
                 st.subheader("Extracted Entities")
-                st.dataframe(
-                    df,
-                    use_container_width=True,
-                    hide_index=True
-                )
+                st.dataframe(df, use_container_width=True, hide_index=True)
 
                 # Metrics
-                st.metric(
-                    "Entities Found",
-                    len(entities)
-                )
+                st.metric("Entities Found",len(entities))
+                st.metric("Characters", len(text))
+                st.metric("Words", len(text.split()))
+
+                entity_types = df["Type"].value_counts()
+                st.subheader("Entity Type Distribution")
+                st.bar_chart(entity_types)
