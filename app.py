@@ -6,6 +6,7 @@ from src.entityextractor import extract_entities, remove_duplicates
 
 st.title("Automated Knowledge Graph Builder")
 st.write("Upload a document from entity extraction")
+
 st.sidebar.title("Project Info")
 st.sidebar.write("Automated Knowledge Graph Builder using NLP")
 
@@ -46,7 +47,6 @@ if uploaded_file is not None:        #Run next code only after user uploads a fi
             else:
                 df = pd.DataFrame(entities, columns=["Entity", "Type"])    #In a tabluar format
                 st.table(df)
-        
 st.write(f"Total Entities Found: {len(entities)}")
 st.metric("Entities Found", len(entities))
 df = pd.DataFrame(
