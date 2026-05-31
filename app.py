@@ -71,4 +71,4 @@ if uploaded_file is not None:
                 )
                 # Metrics
                 
-                st.metric("Total Entities Found", len(entities))
+                st.metric("Entities Found", len(entities))
