@@ -62,7 +62,7 @@ if uploaded_file is not None:
                 )
 
                 # Add serial number column starting from 1
-                df.insert(0, "S.No", range(1, len(df) + 1))
+                df.insert(0, "S.No", [str(i) for i in range(1, len(df) + 1)])
 
                 # Display table
                 st.subheader("Extracted Entities")
