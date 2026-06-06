@@ -8,7 +8,7 @@ def extract_relations(text):
     for sent in doc.sents:
         subject=None
         relation=None
-        object=None
+        object_=None
 
         for token in sent:
             #Subject
