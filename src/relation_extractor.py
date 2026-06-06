@@ -7,7 +7,7 @@ def extract_relations(text):
 
     for sent in doc.sents:
         subject=None
-        relation=None
+        relation_=None
         object_=None
 
         for token in sent:
@@ -17,13 +17,13 @@ def extract_relations(text):
 
             # Verb
             if token.pos_ == "VERB":
-                relation = token.lemma_
+                relation_ = token.lemma_
 
             # Object
             if token.dep_ in ["dobj", "pobj"]:
                 object_ = token.text
 
         if subject and relation and object_:
-            relation.append((subject, relation, object_))
+            relation.append((subject, relation_, object_))
             
     return relation
