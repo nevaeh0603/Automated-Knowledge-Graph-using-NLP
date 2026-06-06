@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 import tempfile
 from src.document_reader import extract_text_document
+from src.relation_extractor import extract_relations
 from src.entityextractor import extract_entities, remove_duplicates
 from src.preprocessing import preprocess
 
@@ -53,6 +54,8 @@ if uploaded_file is not None:
             # Step 2: Extract entities
             entities = extract_entities(text)
             entities = remove_duplicates(entities)
+            relations = extract_relations(text)
+            
 
             if len(entities) == 0:
                 st.warning("No entities found.")
@@ -75,3 +78,12 @@ if uploaded_file is not None:
                 entity_types = df["Type"].value_counts()
                 st.subheader("Entity Type Distribution")
                 st.bar_chart(entity_types)
+
+                st.subheader("Extracted Relationships")
+                if len(relations) == 0:
+                    st.warning("No relationships found.")
+                else:
+
+                    relation_df = pd.DataFrame(relations,columns=["Subject", "Relation", "Object"])
+                    st.dataframe(relation_df,use_container_width=True)
+                    st.metric("Relationships Found",len(relations))
