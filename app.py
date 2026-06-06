@@ -34,8 +34,7 @@ if uploaded_file is not None:
             tmp_file.write(uploaded_file.read())
             temp_path = tmp_file.name
 
-            with st.spinner("Processing document..."):
-                text = extract_text_document(temp_path)
+        #with st.spinner("Processing document...")
 
         # Step 1: Extract text
         st.subheader("Extracted Text Preview")
@@ -54,7 +53,7 @@ if uploaded_file is not None:
             # Step 2: Extract entities
             entities = extract_entities(text)
             entities = remove_duplicates(entities)
-            relations = extract_relations(text)
+            triples = extract_relations(text)
             
 
             if len(entities) == 0:
@@ -80,10 +79,10 @@ if uploaded_file is not None:
                 st.bar_chart(entity_types)
 
                 st.subheader("Extracted Relationships")
-                if len(relations) == 0:
+                if len(triples) == 0:
                     st.warning("No relationships found.")
                 else:
-
-                    relation_df = pd.DataFrame(relations,columns=["Subject", "Relation", "Object"])
+                    relation_df = pd.DataFrame(triples,columns=["Subject", "Relation", "Object"])
                     st.dataframe(relation_df,use_container_width=True)
-                    st.metric("Relationships Found",len(relations))
+                    st.metric("Relationships Found",len(triples))
+                    st.metric("Unique Relations",relation_df["Relation"].nunique())
