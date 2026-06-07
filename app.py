@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 import tempfile
 from src.document_reader import extract_text_document
-from src.relation_extractor import extract_relations
+from src.relation_extractor import extract_relations, custom_relations
 from src.entityextractor import extract_entities, remove_duplicates
 from src.preprocessing import preprocess
 
@@ -54,7 +54,7 @@ if uploaded_file is not None:
             entities = extract_entities(text)
             entities = remove_duplicates(entities)
             triples = extract_relations(text)
-            
+            triples = custom_relations(text)
 
             if len(entities) == 0:
                 st.warning("No entities found.")
