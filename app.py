@@ -1,12 +1,11 @@
-import pandas as pd
+import pandas as pd      #python -m streamlit run app.py
 import streamlit as st
 import tempfile
 from src.document_reader import extract_text_document
 from src.relation_extractor import extract_relations, custom_relations
 from src.entityextractor import extract_entities, remove_duplicates
 from src.preprocessing import preprocess
-
-# Initialize entities
+from connect import store_triples
 
 st.title("Automated Knowledge Graph Builder")
 st.write("Upload a document for entity extraction")
@@ -19,6 +18,7 @@ uploaded_file = st.file_uploader(
     "Upload PDF, TXT file or DOCX file",
     type=["pdf", "txt", "docx"]
 )
+df = None
 
 # Process Button
 if uploaded_file is not None:
@@ -36,7 +36,7 @@ if uploaded_file is not None:
 
         #with st.spinner("Processing document...")
 
-        # Step 1: Extract text
+        #Extract text
         st.subheader("Extracted Text Preview")
         text = extract_text_document(temp_path)
 
@@ -50,11 +50,13 @@ if uploaded_file is not None:
             st.subheader("Processed Text")
             st.text_area("Cleaned Text", processed_text[:1000], height=250)
 
-            # Step 2: Extract entities
+            #Extract entities
             entities = extract_entities(text)
             entities = remove_duplicates(entities)
-            triples = extract_relations(text)
-            triples = custom_relations(text)
+            
+            general_relation = extract_relations(text)
+            custom_relation = custom_relations(text)
+            triples = list(set(general_relation + custom_relation))        
 
             if len(entities) == 0:
                 st.warning("No entities found.")
@@ -75,6 +77,7 @@ if uploaded_file is not None:
                 st.metric("Words", len(text.split()))
 
                 entity_types = df["Type"].value_counts()
+                st.metric("Entity Types", len(entity_types))
                 st.subheader("Entity Type Distribution")
                 st.bar_chart(entity_types)
 
@@ -86,3 +89,18 @@ if uploaded_file is not None:
                     st.dataframe(relation_df,use_container_width=True)
                     st.metric("Relationships Found",len(triples))
                     st.metric("Unique Relations",relation_df["Relation"].nunique())
+
+                if st.button("Build Knowledge Graph"):
+                    try:
+                        store_triples(triples)
+                        st.success("Knowledge Graph Created Successfully!")
+                    except Exception as e:
+                        st.error(f"Error: {e}")
+
+if df is not None:
+    st.download_button(
+        "Download Entities CSV",
+        df.to_csv(index=False),
+        file_name="entities.csv",
+        mime="text/csv"
+)

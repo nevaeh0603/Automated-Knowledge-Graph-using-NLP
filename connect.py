@@ -10,17 +10,18 @@ PASSWORD=os.getenv("NEO4J_PASSWORD")
 
 driver= GraphDatabase.driver(URI,auth=(USERNAME, PASSWORD))
 
-def create_node(tx):
-    query=""" 
-    CREATE (a: PERSON {name: 'Roald Dahl'})
-    CREATE (b: BOOK {name: "The BFG"})
-    CREATE (a)-[:WROTE]->(b)
-    RETURN a,b
-    """
-    tx.run(query)
+def create_relation(subject, relation, object):
+    with driver.session() as session:
+        query=f""" 
+            MERGE (a:Entity {{name:$subject}})
+            MERGE (b:Entity {{name:$object}})
+            MERGE (a)-[:{relation}]->(b)
+        """
+        session.run(query, subject=subject, object=object)
 
-with driver.session() as session:
-    session.execute_write(create_node)
-    
-print("Node created Successfully")
-driver.close()
+def store_triples(triples):
+    for subject, relation, object in triples:
+        create_relation(subject, relation, object)
+
+def close_connection():
+    driver.close()

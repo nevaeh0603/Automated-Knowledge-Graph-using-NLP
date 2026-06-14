@@ -1,9 +1,9 @@
 import spacy
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_lg")
 def extract_entities(text):
     doc = nlp(text)
     entities = []
-    important_labels = ["PERSON", "ORG", "GPE", "DATE"]
+    important_labels = ["PERSON", "ORG", "GPE", "DATE","MONEY"]
 
     for ent in doc.ents:
         if ent.label_ in important_labels:

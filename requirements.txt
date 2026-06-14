@@ -1,6 +1,6 @@
 # pip install -r requirements.txt
-spacy
-streamlit
+spaCy Model Used: en_core_web_lg
+streamlit 
 pdfplumber
 PyPDF2
 python-docx
