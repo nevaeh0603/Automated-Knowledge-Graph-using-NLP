@@ -1,11 +1,12 @@
-import pandas as pd      #python -m streamlit run app.py
+import pandas as pd #python -m streamlit run app.py
 import streamlit as st
 import tempfile
+
 from src.document_reader import extract_text_document
 from src.relation_extractor import extract_relations, custom_relations
 from src.entityextractor import extract_entities, remove_duplicates
 from src.preprocessing import preprocess
-from connect import store_triples
+from connect import store_triples, test_connection, graph_stats, generate_graph
 
 st.title("Automated Knowledge Graph Builder")
 st.write("Upload a document for entity extraction")
@@ -13,17 +14,20 @@ st.write("Upload a document for entity extraction")
 st.sidebar.title("Project Info")
 st.sidebar.write("Automated Knowledge Graph Builder using NLP")
 
+try:
+    st.sidebar.success(test_connection())
+except:
+    st.sidebar.error("Neo4j Not Connected")
+
 # File Upload
 uploaded_file = st.file_uploader(
-    "Upload PDF, TXT file or DOCX file",
+    "Upload PDF, TXT or DOCX File",
     type=["pdf", "txt", "docx"]
 )
-df = None
 
-# Process Button
+# Process Document
 if uploaded_file is not None:
     if st.button("Process Document"):
-
         file_extension = uploaded_file.name.split(".")[-1]
 
         # Save uploaded file with correct extension
@@ -31,76 +35,140 @@ if uploaded_file is not None:
             delete=False,
             suffix="." + file_extension
         ) as tmp_file:
+
             tmp_file.write(uploaded_file.read())
             temp_path = tmp_file.name
 
-        #with st.spinner("Processing document...")
-
-        #Extract text
-        st.subheader("Extracted Text Preview")
-        text = extract_text_document(temp_path)
-
-        if len(text.strip()) == 0:
-            st.error("No text could be extracted from this file.")
-        else:
-            st.text_area("Document Text", text[:1000], height=300)
-            st.success("Document processed successfully!")
+        with st.spinner("Processing document..."):
+            text = extract_text_document(temp_path)
+            if len(text.strip()) == 0:
+                st.error("No text could be extracted.")
+                st.stop()
 
             processed_text = preprocess(text)
-            st.subheader("Processed Text")
-            st.text_area("Cleaned Text", processed_text[:1000], height=250)
 
-            #Extract entities
             entities = extract_entities(text)
             entities = remove_duplicates(entities)
-            
-            general_relation = extract_relations(text)
-            custom_relation = custom_relations(text)
-            triples = list(set(general_relation + custom_relation))        
 
-            if len(entities) == 0:
-                st.warning("No entities found.")
-            else:
-                # Create DataFrame
-                df = pd.DataFrame(entities, columns=["Entity", "Type"])
+            general_relations = extract_relations(text)
+            custom_relations_list = custom_relations(text)
 
-                # Add serial number column starting from 1
-                df.insert(0, "S.No", [str(i) for i in range(1, len(df) + 1)])
+            triples = list(set(general_relations + custom_relations_list))
 
-                # Display table
-                st.subheader("Extracted Entities")
-                st.dataframe(df, use_container_width=True, hide_index=True)
+            st.session_state["text"] = text
+            st.session_state["processed_text"] = processed_text
+            st.session_state["entities"] = entities
+            st.session_state["triples"] = triples
 
-                # Metrics
-                st.metric("Entities Found",len(entities))
-                st.metric("Characters", len(text))
-                st.metric("Words", len(text.split()))
+# Display Results
+if "entities" in st.session_state:
+    text = st.session_state["text"]
+    processed_text = st.session_state["processed_text"]
+    entities = st.session_state["entities"]
+    triples = st.session_state["triples"]
 
-                entity_types = df["Type"].value_counts()
-                st.metric("Entity Types", len(entity_types))
-                st.subheader("Entity Type Distribution")
-                st.bar_chart(entity_types)
+    # Statistics Row
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Entities", len(entities))
+    col2.metric("Relations", len(triples))
+    col3.metric("Words", len(text.split()))
+    col4.metric("Characters", len(text))
 
-                st.subheader("Extracted Relationships")
-                if len(triples) == 0:
-                    st.warning("No relationships found.")
-                else:
-                    relation_df = pd.DataFrame(triples,columns=["Subject", "Relation", "Object"])
-                    st.dataframe(relation_df,use_container_width=True)
-                    st.metric("Relationships Found",len(triples))
-                    st.metric("Unique Relations",relation_df["Relation"].nunique())
+    # Tabs
+    tab1, tab2, tab3, tab4 = st.tabs(
+        [
+            "Text",
+            "Entities",
+            "Relations",
+            "Knowledge Graph"
+        ]
+    )
 
-                if st.button("Build Knowledge Graph"):
-                    try:
-                        store_triples(triples)
-                        st.success("Knowledge Graph Created Successfully!")
-                    except Exception as e:
-                        st.error(f"Error: {e}")
+    # TEXT TAB
+    with tab1:
+        st.subheader("Document Text")
+        st.text_area(
+            "Original Text",
+            text[:1000],
+            height=250
+        )
 
-if df is not None:
-    st.download_button(
-        "Download Entities CSV",
-        df.to_csv(index=False),
-        file_name="entities.csv",
-        mime="text/csv"
-)
+        with st.expander("Processed Text"):
+            st.text_area(
+                "Processed Text",
+                processed_text[:1000],
+                height=200
+            )
+
+    # ENTITIES TAB
+    with tab2:
+        if len(entities) == 0:
+            st.warning("No entities found.")
+        else:
+            df = pd.DataFrame(
+                entities,
+                columns=["Entity", "Type"]
+            )
+            df.insert(
+                0,
+                "S.No",
+                range(1, len(df) + 1)
+            )
+            st.subheader("Extracted Entities")
+            st.dataframe(
+                df,
+                use_container_width=True,
+                hide_index=True
+            )
+            entity_types = df["Type"].value_counts()
+            st.subheader("Entity Distribution")
+            st.bar_chart(entity_types)
+            st.download_button(
+                "Download Entities CSV",
+                df.to_csv(index=False),
+                file_name="entities.csv",
+                mime="text/csv"
+            )
+
+    # RELATIONS TAB
+    with tab3:
+        st.subheader("Extracted Relationships")
+        if len(triples) == 0:
+            st.warning("No relationships found.")
+        else:
+            relation_df = pd.DataFrame(
+                triples,
+                columns=[
+                    "Subject",
+                    "Relation",
+                    "Object"
+                ]
+            )
+            st.dataframe(
+                relation_df,
+                use_container_width=True
+            )
+            st.metric(
+                "Total Triples",
+                len(triples)
+            )
+
+    # KNOWLEDGE GRAPH TAB
+    with tab4:
+        if st.button("Build Knowledge Graph"):
+            try:
+                with st.spinner("Creating Knowledge Graph..."):
+                    store_triples(triples)
+                    nodes, relations = graph_stats()
+                    st.success(f"Knowledge Graph Created Successfully! ({len(triples)} triples stored)")
+                    col1, col2 = st.columns(2)
+                    col1.metric("Nodes",nodes)
+                    col2.metric("Relationships",relations)
+
+                    graph_file= generate_graph()
+                    with open(graph_file, "r", encoding="utf-8") as f:
+                        html=f.read()
+                        st.subheader("Knowledge Graph Visualization")
+                        st.components.v1.html(html, height=650, scrolling=True)
+            except Exception as e:
+                st.error(f"Error: {e}")

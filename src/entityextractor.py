@@ -1,5 +1,5 @@
 import spacy
-nlp = spacy.load("en_core_web_lg")
+nlp = spacy.load("en_core_web_md")
 def extract_entities(text):
     doc = nlp(text)
     entities = []

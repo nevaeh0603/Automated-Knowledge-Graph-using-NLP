@@ -1,5 +1,5 @@
 # pip install -r requirements.txt
-spaCy Model Used: en_core_web_lg
+spaCy Model Used: en_core_web_md
 streamlit 
 pdfplumber
 PyPDF2
@@ -7,3 +7,4 @@ python-docx
 pandas
 neo4j
 python-dotenv
+pyvis
