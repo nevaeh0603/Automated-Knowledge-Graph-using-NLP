@@ -1,12 +1,11 @@
 import pandas as pd #python -m streamlit run app.py
 import streamlit as st
 import tempfile
-
 from src.document_reader import extract_text_document
 from src.relation_extractor import extract_relations, custom_relations
 from src.entityextractor import extract_entities, remove_duplicates
 from src.preprocessing import preprocess
-from connect import store_triples, test_connection, graph_stats, generate_graph
+from connect import store_triples, test_connection, graph_stats, generate_graph, clear_graph
 
 st.title("Automated Knowledge Graph Builder")
 st.write("Upload a document for entity extraction")
@@ -59,6 +58,7 @@ if uploaded_file is not None:
             st.session_state["processed_text"] = processed_text
             st.session_state["entities"] = entities
             st.session_state["triples"] = triples
+            st.session_state["graph_created"] = False
 
 # Display Results
 if "entities" in st.session_state:
@@ -153,22 +153,90 @@ if "entities" in st.session_state:
                 len(triples)
             )
 
-    # KNOWLEDGE GRAPH TAB
+# KNOWLEDGE GRAPH TAB
     with tab4:
-        if st.button("Build Knowledge Graph"):
-            try:
-                with st.spinner("Creating Knowledge Graph..."):
-                    store_triples(triples)
-                    nodes, relations = graph_stats()
-                    st.success(f"Knowledge Graph Created Successfully! ({len(triples)} triples stored)")
-                    col1, col2 = st.columns(2)
-                    col1.metric("Nodes",nodes)
-                    col2.metric("Relationships",relations)
 
-                    graph_file= generate_graph()
-                    with open(graph_file, "r", encoding="utf-8") as f:
-                        html=f.read()
-                        st.subheader("Knowledge Graph Visualization")
-                        st.components.v1.html(html, height=650, scrolling=True)
+        st.subheader("Knowledge Graph")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            build_graph = st.button(
+                "Build Knowledge Graph",
+                type="primary"
+            )
+
+        with col2:
+            clear_db = st.button(
+                "Clear Knowledge Graph"
+            )
+
+        # Clear Graph
+        if clear_db:
+            try:
+                clear_graph()
+
+                st.session_state["graph_created"] = False
+
+                st.success(
+                    "Knowledge Graph Cleared Successfully!"
+                )
+
+                st.rerun()
+
+            except Exception as e:
+                st.error(f"Error: {e}")
+
+        # Build Graph
+        if build_graph:
+
+            try:
+                with st.spinner(
+                    "Creating Knowledge Graph..."
+                ):
+
+                    store_triples(triples)
+
+                    st.session_state["graph_created"] = True
+
+            except Exception as e:
+                st.error(f"Error: {e}")
+
+        # Display graph if already built
+        if st.session_state.get("graph_created", False):
+
+            try:
+                nodes, relations = graph_stats()
+
+                st.success(
+                    f"Knowledge Graph Created Successfully! "
+                    f"({len(triples)} triples stored)"
+                )
+
+                col1, col2 = st.columns(2)
+
+                col1.metric("Nodes", nodes)
+                col2.metric("Relationships", relations)
+
+                graph_file = generate_graph()
+
+                with open(
+                    graph_file,
+                    "r",
+                    encoding="utf-8"
+                ) as file:
+
+                    html = file.read()
+
+                st.subheader(
+                    "Knowledge Graph Visualization"
+                )
+
+                st.components.v1.html(
+                    html,
+                    height=750,
+                    scrolling=True
+                )
+
             except Exception as e:
                 st.error(f"Error: {e}")

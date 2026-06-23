@@ -46,30 +46,95 @@ def graph_stats():
 
 #Generate Graph
 def generate_graph():
-    net= Network(
-        height="500px",
+
+    net = Network(
+        height="700px",
         width="100%",
-        bgcolor="white",
+        bgcolor="#ffffff",
+        font_color="black",
         directed=True
     )
 
-    query="""
-        MATCH (a)-[r]->(b)
-        RETURN a.name AS source, type(r) AS relation, b.name AS target
+    query = """
+    MATCH (a)-[r]->(b)
+    RETURN a.name AS source,
+           type(r) AS relation,
+           b.name AS target
     """
+
     with driver.session() as session:
-        count=0
-        results= session.run(query)
+
+        results = session.run(query)
+
         for record in results:
-            source= record["source"]
-            relation= record["relation"]
-            target= record["target"]
 
-            net.add_node(source, label=source)
-            net.add_node(target, label=target)
-            net.add_edge(source, target, label=relation)
-            count+=1
-            print("Total Relations Loaded: ", count)
-            net.save_graph("graph.html")
+            source = record["source"]
+            relation = record["relation"]
+            target = record["target"]
 
-            return "graph.html"
+            net.add_node(
+                source,
+                label=source
+            )
+
+            net.add_node(
+                target,
+                label=target
+            )
+
+            net.add_edge(
+                source,
+                target,
+                label=relation,
+                title=relation
+            )
+
+    # Better layout settings
+    net.set_options("""
+    {
+      "physics": {
+        "enabled": true,
+        "forceAtlas2Based": {
+          "gravitationalConstant": -80,
+          "centralGravity": 0.01,
+          "springLength": 150,
+          "springConstant": 0.08
+        },
+        "solver": "forceAtlas2Based",
+        "stabilization": {
+          "enabled": true,
+          "iterations": 100
+        }
+      },
+      "nodes": {
+        "shape": "dot",
+        "size": 18,
+        "font": {
+          "size": 14
+        }
+      },
+      "edges": {
+        "arrows": {
+          "to": {
+            "enabled": true
+          }
+        },
+        "font": {
+          "size": 10,
+          "align": "middle"
+        }
+      }
+    }
+    """)
+
+    net.save_graph("graph.html")
+
+    return "graph.html"
+
+# Clear Graph
+def clear_graph():
+    with driver.session() as session:
+        session.run("""
+            MATCH (n)
+            DETACH DELETE n
+        """)
