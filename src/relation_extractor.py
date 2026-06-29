@@ -1,4 +1,5 @@
 import spacy
+import re
 nlp = spacy.load("en_core_web_md")
 
 def extract_relations(text):
@@ -20,7 +21,7 @@ def extract_relations(text):
             if token.dep_ == "ROOT" and token.pos_ == "VERB":
                 verb = token.lemma_.lower()
                 if verb not in stop_verbs:
-                    relation = verb.upper()
+                    relation = re.sub(r'[^A-Za-z0-9_]', '_', verb.upper())
 
             # Object
             if (token.dep_ in ["dobj", "pobj", "attr"] and token.pos_ in ["NOUN", "PROPN"]):

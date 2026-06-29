@@ -8,15 +8,33 @@ from src.preprocessing import preprocess
 from connect import store_triples, test_connection, graph_stats, generate_graph, clear_graph
 
 st.title("Automated Knowledge Graph Builder")
-st.write("Upload a document for entity extraction")
+st.write("Transform research papers, articles, PDFs and documents into interactive knowledge graphs using NLP and Neo4j.")
 
-st.sidebar.title("Project Info")
-st.sidebar.write("Automated Knowledge Graph Builder using NLP")
+st.sidebar.title("Project Information")
+st.sidebar.write("Automated Knowledge Graph Builder using NLP and Neo4j")
 
 try:
+    st.sidebar.header("Neo4j is: ")
     st.sidebar.success(test_connection())
 except:
-    st.sidebar.error("Neo4j Not Connected")
+    st.sidebar.error("Not Connected")
+
+st.sidebar.header("Project Objectives")
+st.sidebar.write("""
+    - Extract entities from text documents
+    - Identify relationships between entities
+    - Build a Knowledge Graph automatically
+    - Visualize connections between concepts
+    - Reduce manual analysis effort
+""")
+st.sidebar.header("Technologies used")
+st.sidebar.write("""
+    - Python
+    - Neo4j
+    - SpaCy
+    - Streamlit 
+    - Git & GitHub
+""")
 
 # File Upload
 uploaded_file = st.file_uploader(
@@ -155,88 +173,45 @@ if "entities" in st.session_state:
 
 # KNOWLEDGE GRAPH TAB
     with tab4:
-
         st.subheader("Knowledge Graph")
-
         col1, col2 = st.columns(2)
-
         with col1:
-            build_graph = st.button(
-                "Build Knowledge Graph",
-                type="primary"
-            )
-
+            build_graph = st.button("Build Knowledge Graph", type="primary")
         with col2:
-            clear_db = st.button(
-                "Clear Knowledge Graph"
-            )
+            clear_db = st.button("Clear Knowledge Graph")
 
         # Clear Graph
         if clear_db:
             try:
                 clear_graph()
-
                 st.session_state["graph_created"] = False
-
-                st.success(
-                    "Knowledge Graph Cleared Successfully!"
-                )
-
+                st.success("Knowledge Graph Cleared Successfully!")
                 st.rerun()
-
             except Exception as e:
                 st.error(f"Error: {e}")
 
         # Build Graph
         if build_graph:
-
             try:
-                with st.spinner(
-                    "Creating Knowledge Graph..."
-                ):
-
+                with st.spinner("Creating Knowledge Graph..."):
                     store_triples(triples)
-
                     st.session_state["graph_created"] = True
-
             except Exception as e:
                 st.error(f"Error: {e}")
 
         # Display graph if already built
         if st.session_state.get("graph_created", False):
-
             try:
                 nodes, relations = graph_stats()
-
-                st.success(
-                    f"Knowledge Graph Created Successfully! "
-                    f"({len(triples)} triples stored)"
-                )
-
+                st.success(f"Knowledge Graph Created Successfully! "f"({len(triples)} triples stored)")
                 col1, col2 = st.columns(2)
-
-                col1.metric("Nodes", nodes)
-                col2.metric("Relationships", relations)
-
                 graph_file = generate_graph()
-
-                with open(
-                    graph_file,
-                    "r",
-                    encoding="utf-8"
-                ) as file:
-
+                with open(graph_file, "r", encoding="utf-8") as file:
                     html = file.read()
-
-                st.subheader(
-                    "Knowledge Graph Visualization"
-                )
-
-                st.components.v1.html(
-                    html,
-                    height=750,
-                    scrolling=True
-                )
-
+                st.subheader("Knowledge Graph Visualization")
+                st.components.v1.html(html, height=750, scrolling=True)
             except Exception as e:
                 st.error(f"Error: {e}")
+
+#st.divider()
+#st.caption("Developed by Nevaeh Singh and Mayank Rathee")

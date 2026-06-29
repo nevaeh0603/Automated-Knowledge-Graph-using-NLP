@@ -17,9 +17,10 @@ def create_relation(subject, relation, object):
         query=f""" 
             MERGE (a:Entity {{name:$subject}})
             MERGE (b:Entity {{name:$object}})
-            MERGE (a)-[:{relation}]->(b)
+            MERGE (a)-[r:RELATION]->(b)
+            SET r.type=$relation
         """
-        session.run(query, subject=subject, object=object)
+        session.run(query, subject=subject, object=object, relation=relation)
 
 def store_triples(triples):
     for subject, relation, object in triples:
@@ -46,7 +47,6 @@ def graph_stats():
 
 #Generate Graph
 def generate_graph():
-
     net = Network(
         height="700px",
         width="100%",
@@ -58,30 +58,19 @@ def generate_graph():
     query = """
     MATCH (a)-[r]->(b)
     RETURN a.name AS source,
-           type(r) AS relation,
+           r.type AS relation,
            b.name AS target
     """
 
     with driver.session() as session:
-
         results = session.run(query)
-
         for record in results:
-
             source = record["source"]
             relation = record["relation"]
             target = record["target"]
 
-            net.add_node(
-                source,
-                label=source
-            )
-
-            net.add_node(
-                target,
-                label=target
-            )
-
+            net.add_node(source, label=source)
+            net.add_node(target, label=target)
             net.add_edge(
                 source,
                 target,
@@ -128,7 +117,6 @@ def generate_graph():
     """)
 
     net.save_graph("graph.html")
-
     return "graph.html"
 
 # Clear Graph
