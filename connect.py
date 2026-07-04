@@ -29,7 +29,7 @@ def store_triples(triples):
 #Test Connection
 def test_connection():
     with driver.session() as session:
-        result=session.run("RETURN 'Connected' AS message")
+        result=session.run("RETURN '🟢 Connected' AS message")
         return result.single()["message"]
 
 #Graph Stats   

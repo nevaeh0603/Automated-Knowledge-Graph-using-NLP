@@ -1,6 +1,7 @@
 import pandas as pd #python -m streamlit run app.py
 import streamlit as st
 import tempfile
+import plotly.express as px
 from src.document_reader import extract_text_document
 from src.relation_extractor import extract_relations, custom_relations
 from src.entityextractor import extract_entities, remove_duplicates
@@ -17,16 +18,8 @@ try:
     st.sidebar.header("Neo4j is: ")
     st.sidebar.success(test_connection())
 except:
-    st.sidebar.error("Not Connected")
+    st.sidebar.error("🔴 Disconnected")
 
-st.sidebar.header("Project Objectives")
-st.sidebar.write("""
-    - Extract entities from text documents
-    - Identify relationships between entities
-    - Build a Knowledge Graph automatically
-    - Visualize connections between concepts
-    - Reduce manual analysis effort
-""")
 st.sidebar.header("Technologies used")
 st.sidebar.write("""
     - Python
@@ -104,7 +97,7 @@ if "entities" in st.session_state:
 
     # TEXT TAB
     with tab1:
-        st.subheader("Document Text")
+        st.subheader("Extracted Text Preview")
         st.text_area(
             "Original Text",
             text[:1000],
@@ -139,8 +132,21 @@ if "entities" in st.session_state:
                 hide_index=True
             )
             entity_types = df["Type"].value_counts()
-            st.subheader("Entity Distribution")
-            st.bar_chart(entity_types)
+            color_map={
+                "PERSON": "#EF4444", 
+                "ORG": "#F5D20B", 
+                "GPE": "#10B981",
+                "DATE": "#3B82F6", 
+                "MONEY": "#8B5CF6" 
+            }
+            fig= px.bar( 
+                        x=entity_types.index,
+                        y=entity_types.values,
+                        color=entity_types.index,
+                        color_discrete_map=color_map,
+                        labels={"x": "Entity Type", "y": "Number of Entities"},
+                        title="Entity Distribution")
+            st.plotly_chart(fig, use_container_width=True)
             st.download_button(
                 "Download Entities CSV",
                 df.to_csv(index=False),
@@ -213,5 +219,5 @@ if "entities" in st.session_state:
             except Exception as e:
                 st.error(f"Error: {e}")
 
-#st.divider()
-#st.caption("Developed by Nevaeh Singh and Mayank Rathee")
+st.divider()
+st.caption("Developed by Nevaeh Singh and Mayank Rathee")

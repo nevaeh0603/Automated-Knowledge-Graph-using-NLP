@@ -5,7 +5,7 @@ To design and develop a system that automatically converts unstructured document
 In today's world, large amounts of knowledge are stored in unstructured documents.
 Extracting information which are useful from these documents are time consuming and requires manual reading and analysis.
 Traditional search systems return entire documents instead of actual knowledge contained within them which means everything is difficult.
-The objective of this project is to design and develop a system that automatically converts unstructured documents into a knowledge graph using Natural Proceesing Language (NLP) and graph database (NEO4j). The system will allow users to upload documents and visulize extracted knowledge.
+The objective of this project is to design and develop a system that automatically converts unstructured documents into a knowledge graph using Natural Language Processing (NLP) and graph database (NEO4j). The system will allow users to upload documents and visualize  ulize extracted knowledge.
 
 ## Objectives
 - Extract entities from text documents

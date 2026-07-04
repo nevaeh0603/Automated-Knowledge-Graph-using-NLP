@@ -98,7 +98,6 @@ def custom_relations(text):
         if "headquartered in" in sentence or "located in" in sentence:
             if len(orgs) > 0:
                 company = orgs[0]
-
                 for location in locations:
                     triples.append((company, "HEADQUARTERED_IN", location))
 

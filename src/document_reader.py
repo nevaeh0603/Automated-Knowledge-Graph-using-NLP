@@ -56,7 +56,6 @@ def extract_text_document(filepath):
     file_extension=file_extension.lower().strip()
 
     print("Detected file extension: ", file_extension)
-
     if file_extension==".pdf":
         text= read_pdf_pdfplumber(filepath)
 
@@ -64,7 +63,6 @@ def extract_text_document(filepath):
         if len(text.strip())==0:
             print("Switching to PyPDF2...")
             text=read_pdf_PyPDF2(filepath)
-
         return text
     
     elif file_extension==".txt":
