@@ -2,6 +2,7 @@ import pandas as pd #python -m streamlit run app.py
 import streamlit as st
 import tempfile
 import plotly.express as px
+import time 
 from src.document_reader import extract_text_document
 from src.relation_extractor import extract_relations, custom_relations
 from src.entityextractor import extract_entities, remove_duplicates
@@ -20,15 +21,6 @@ try:
 except:
     st.sidebar.error("🔴 Disconnected")
 
-st.sidebar.header("Technologies used")
-st.sidebar.write("""
-    - Python
-    - Neo4j
-    - SpaCy
-    - Streamlit 
-    - Git & GitHub
-""")
-
 # File Upload
 uploaded_file = st.file_uploader(
     "Upload PDF, TXT or DOCX File",
@@ -45,7 +37,6 @@ if uploaded_file is not None:
             delete=False,
             suffix="." + file_extension
         ) as tmp_file:
-
             tmp_file.write(uploaded_file.read())
             temp_path = tmp_file.name
 
@@ -199,9 +190,12 @@ if "entities" in st.session_state:
         # Build Graph
         if build_graph:
             try:
+                start_time= time.time() #Start timer
                 with st.spinner("Creating Knowledge Graph..."):
                     store_triples(triples)
                     st.session_state["graph_created"] = True
+                end_time= time.time() #end timer
+                st.session_state["graph_time"]= end_time- start_time
             except Exception as e:
                 st.error(f"Error: {e}")
 
@@ -216,8 +210,6 @@ if "entities" in st.session_state:
                     html = file.read()
                 st.subheader("Knowledge Graph Visualization")
                 st.components.v1.html(html, height=750, scrolling=True)
+                st.info(f"Graph Generation Time: {st.session_state['graph_time']:.2f} seconds")
             except Exception as e:
                 st.error(f"Error: {e}")
-
-st.divider()
-st.caption("Developed by Nevaeh Singh and Mayank Rathee")
